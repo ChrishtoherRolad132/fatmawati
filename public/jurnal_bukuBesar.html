@@ -285,8 +285,8 @@
                                             </tbody>
                                             <tfoot>
                                                 <tr>
-                                                    <td colspan="3" style="text-align: right;"><b>Total: </b></td>
-                                                    <td colspan="2" id="total" style="text-align: center;"></td>
+                                                    <td colspan="2" style="text-align: right;"><b>Total: </b></td>
+                                                    <td id="total" style="text-align: center;"></td>
                                                 </tr>
                                             </tfoot>
                                         </table>
@@ -354,312 +354,183 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
     <script>
-        function ubahFormatTanggal(tanggalAwal) {
-            // Pisahkan hari, bulan, dan tahun
-            var [hari, bulan, tahun] = tanggalAwal.split('-');
-
-            // Array untuk menyimpan nama bulan dalam bahasa Inggris
-            var namaBulan = [
-                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-            ];
-
-            // Ambil nama bulan sesuai indeks (bulan - 1 karena indeks dimulai dari 0)
-            var namaBulanStr = namaBulan[parseInt(bulan, 10) - 1];
-
-            // Format ulang tanggal
-            var tanggalHasil = hari + ' ' + namaBulanStr + ' ' + tahun;
-
-            return tanggalHasil;
-        }
-
-        document.querySelectorAll('.dropdown-item').forEach(item => {
-            item.addEventListener('click', function () {
-                // Hapus kelas 'active' dari item yang sebelumnya aktif
-                document.querySelector('.dropdown-item.active').classList.remove('active');
-
-                // Tambahkan kelas 'active' pada item yang baru diklik
-                this.classList.add('active');
-
-                // Mendapatkan nilai terklik
-                var selectedValue = this.getAttribute('value');
-                console.log('Selected Value:', selectedValue);
-
-                // Mengganti nama tombol berdasarkan nilai yang aktif
-                document.getElementById('dropdownMenuButton').innerText = 'Waktu: ' + selectedValue;
-
-                // Panggil ulang fungsi fetch dengan filter baru
-                fetchDataAndDisplayTable(selectedValue);
-            });
-        });
-
         document.addEventListener('DOMContentLoaded', () => {
-            fetchDataAndDisplayTable('Tahunan'); // Set default filter to 'Tahunan'
-        });
-
-        async function fetchDataAndDisplayTable(filterValue) {
-            try {
-                const response = await fetch('jurnal_umum.json');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-
-                const data = await response.json();
-
-                // Filter data berdasarkan nilai yang dipilih
-                let filteredData;
-                if (filterValue === 'Tahunan') {
-                    // Jika filter adalah "Tahunan", tampilkan seluruh data
-                    filteredData = data;
-                } else {
-                    // Jika filter bukan "Tahunan", terapkan filter berdasarkan posisi_saldo
-                    filteredData = data.filter(item => item["posisi_saldo"] === filterValue);
-                }
-
-                // Tampilkan data yang telah difilter
-                displayDataInTable(filteredData);
-            } catch (error) {
-                console.error('Error fetching or displaying data:', error);
-                // Display a user-friendly error message on your webpage
-                // Example: document.getElementById('error-message').innerText = 'Failed to fetch or display data';
+            function ubahFormatTanggal(tanggalAwal) {
+                let options = {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                };
+                return new Date(tanggalAwal).toLocaleDateString('id-ID', options);
             }
-        }
+
+            function monthNameToNumber(monthName) {
+                const monthNames = {
+                    'Januari': 1,
+                    'Februari': 2,
+                    'Maret': 3,
+                    'April': 4,
+                    'Mei': 5,
+                    'Juni': 6,
+                    'Juli': 7,
+                    'Agustus': 8,
+                    'September': 9,
+                    'Oktober': 10,
+                    'November': 11,
+                    'Desember': 12
+                };
+
+                return monthNames[monthName];
+            }
+
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    // Hapus kelas 'active' dari item yang sebelumnya aktif
+                    document.querySelector('.dropdown-item.active').classList.remove('active');
+
+                    // Tambahkan kelas 'active' pada item yang baru diklik
+                    this.classList.add('active');
+
+                    // Mendapatkan nilai terklik
+                    var selectedValue = this.getAttribute('value');
+                    console.log('Selected Value:', selectedValue);
+
+                    // Mengganti nama tombol berdasarkan nilai yang aktif
+                    document.getElementById('dropdownMenuButton').innerText = 'Waktu: ' +
+                        selectedValue;
+
+                    // Panggil ulang fungsi fetch dengan filter baru
+                    fetchDataAndDisplayTable(selectedValue);
+                });
+            });
+            fetchDataAndDisplayTable('Tahunan');
+            async function fetchDataAndDisplayTable(filterValue) {
+                try {
+                    const response = await fetch('/api/jurnalApis');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch data');
+                    }
+
+                    const data = await response.json();
+
+                    // Filter data based on the selected filterValue (month or 'Tahunan')
+                    const filteredData = filterValue === 'Tahunan' ? data : filterDataByMonth(data,
+                        filterValue);
+
+                    // Display the filtered data
+                    console.log(displayDataInTable(filteredData));
+                } catch (error) {
+                    console.error('Error fetching or displaying data:', error);
+                    // Display a user-friendly error message on your webpage if needed
+                    // Example: document.getElementById('error-message').innerText = 'Failed to fetch or display data';
+                }
+            }
 
 
-        function displayDataInTable(data) {
-            const tbody = document.getElementById('data');
 
-            tbody.innerHTML = '';
-            let totalDebit = 0;
-            let totalKredit = 0;
+            function displayDataInTable(data) {
+                const tbody = document.getElementById('data');
 
-            data.forEach(item => {
-                var waktu = ubahFormatTanggal(item.tanggal);
-                const row = `<tr>
-            <td>${item["kode_akun"]}</td>
+                tbody.innerHTML = '';
+                let totalDebit = 0;
+                let totalKredit = 0;
+
+                data.forEach(item => {
+                    console.log(item);
+                    var waktu = ubahFormatTanggal(item.waktu);
+                    const row = `<tr>
+            <td>${item["id_akun"]}</td>
             <td>${waktu}</td>
             <td>${formatCurrency(parseFloat(item.nominal))}</td>
             <td>${item["posisi_saldo"]}</td>
         </tr>`;
-                tbody.innerHTML += row;
-                const nominalValue = parseInt(item.nominal, 10);
-                if (item['posisi_saldo'] === 'debit') {
-                    totalDebit += nominalValue;
-                } else if (item['posisi_saldo'] === 'kredit') {
-                    totalKredit += nominalValue;
+                    tbody.innerHTML += row;
+                    const nominalValue = parseInt(item.nominal, 10);
+                    if (item['posisi_saldo'] === 'Debit') {
+                        totalDebit += nominalValue;
+                    } else if (item['posisi_saldo'] === 'Kredit') {
+                        totalKredit += nominalValue;
+                    }
+                });
+
+                const totalCell = document.getElementById('total');
+                const totalValue = totalDebit - totalKredit;
+
+                // Display the total in the center-aligned cell
+                totalCell.textContent = formatCurrency(totalValue);
+                if (totalValue < 0) {
+                    totalCell.style.color = 'red';
                 }
-            });
-
-            const totalCell = document.getElementById('total');
-            const totalValue = totalDebit - totalKredit;
-
-            // Display the total in the center-aligned cell
-            totalCell.textContent = formatCurrency(totalValue);
-            if (totalValue < 0) {
-                totalCell.style.color = 'red';
             }
-        }
 
-        function filterDataByMonth(data, filterValue) {
-            // Jika filter bukan Tahunan, ubah filter menjadi angka bulan
-            const monthFilter = filterValue !== 'Tahunan' ? monthNameToNumber(filterValue) : null;
+            function filterDataByMonth(data, filterValue) {
+                console.log('Filtering data. Filter value:', filterValue);
 
-            // Filter data sesuai dengan bulan
-            const filteredData = data.filter(item => {
-                if (monthFilter) {
-                    const itemDate = new Date(item.tanggal);
-                    const itemMonth = itemDate.getMonth() + 1; // +1 karena bulan dimulai dari 0
-                    const formattedDate = `${itemDate.getDate()}-${itemMonth}-${itemDate.getFullYear()}`;
-
-                    return formattedDate === filterValue;
-                } else {
-                    return true; // Jika filter Tahunan, tampilkan semua data
-                }
-            });
-
-            return filteredData;
-        }
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR'
-            }).format(amount);
-        }
-
-        function generateAndPrintPDF() {
-            const data = getDataFromTable();
-            generatePDF(data);
-        }
-
-        function getDataFromTable() {
-            const data = [];
-            const rows = document.getElementById('data').querySelectorAll('tr');
-
-            rows.forEach(row => {
-                const columns = row.querySelectorAll('td');
-                const rowData = {};
-
-                rowData["kode_akun"] = columns[0].innerText;
-                rowData["tanggal"] = columns[2].innerText;
-
-                // Extract numeric value from currency-formatted string
-                rowData["nominal"] = parseCurrencyValue(columns[3].innerText);
-
-                rowData["posisi_saldo"] = columns[4].innerText;
-
-                data.push(rowData);
-            });
-
-            return data;
-        }
-
-        function parseCurrencyValue(currencyString) {
-            // Remove non-numeric characters, replace comma with dot, and parse as float
-            return parseFloat(currencyString.replace(/[^\d,]/g, '').replace(',', '.'));
-        }
-
-        function generatePDF(data) {
-            let totalDebit = 0;
-            let totalKredit = 0;
-
-            data.forEach((dataItem) => {
-                const nominalValue = parseInt(dataItem.nominal, 10);
-
-                if (dataItem['posisi_saldo'] === 'debit') {
-                    totalDebit += nominalValue;
-                } else if (dataItem['posisi_saldo'] === 'kredit') {
-                    totalKredit += nominalValue;
-                }
-            });
-
-            const totalValue = totalDebit - totalKredit;
-            console.log(totalValue);
-            formatCurrency(totalValue);
-            var docDefinition = {
-                pageSize: 'A4',
-                content: [{
-                        text: `Buku Besar`,
-                        style: 'header'
-                    },
-                    {
-                        text: `Surat ini dikeluarkan resmi oleh bumdes desa dengan keterangan sebagai berikut:
-                nama    : Admin 
-                lokasi : Kantor Desa Umbele`,
-                        style: 'praph1'
-                    },
-                    {
-                        table: {
-                            headerRows: 1,
-                            widths: ['auto', 'auto', 'auto', 'auto', 'auto'],
-                            body: [
-                                ['Kode Akun', 'ID Transaksi', 'Waktu Transaksi', 'Nominal', 'Posisi Saldo'],
-                                ...data.map(item => [
-                                    item["kode_akun"],
-                                    item["id_transaksi"],
-                                    item["tanggal"],
-                                    formatCurrency(item.nominal),
-                                    item["posisi_saldo"]
-                                ]),
-                                [{
-                                        text: 'Total:',
-                                        colSpan: 3,
-                                        alignment: 'right',
-                                        bold: true
-                                    },
-                                    {},
-                                    {},
-                                    {
-                                        text: formatCurrency(totalValue),
-                                        colSpan: 2,
-                                        alignment: 'center'
-                                    },
-                                    {}
-                                ]
-                            ]
-                        }
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: 'Demikian surat laporan disampaikan dengan sangat akurat sesuai dengan arahan dari admin. Apabila ada kesalahan dalam penulisan maka kami pihak dibawah ini akan siap bertanggung jawab.'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: 'Hormat Kami,'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        columns: [{
-                                width: 'auto',
-                                text: [
-                                    '(.............)',
-                                    '\n',
-                                    {
-                                        text: 'Kepala Desa',
-                                        bold: true
-                                    },
-                                ]
-                            },
-                            {
-                                alignment: 'right',
-                                text: [
-                                    '(..............)',
-                                    '\n',
-                                    {
-                                        text: 'Admin',
-                                        bold: true
-                                    }
-                                ]
-                            }
-                        ]
+                // Filter data based on the selected filterValue (month or 'Tahunan')
+                const filteredData = data.filter(item => {
+                    if (filterValue === 'Tahunan') {
+                        return true; // Display all data for 'Tahunan'
                     }
-                ],
-                styles: {
-                    header: {
-                        fontSize: 18,
-                        bold: true,
-                        alignment: 'center',
-                        margin: [0, 0, 0, 12]
-                    },
-                    praph1: {
-                        margin: [0, 0, 0, 12]
-                    }
-                }
-            };
 
-            // Generate and open the PDF
-            pdfMake.createPdf(docDefinition).open();
-        }
+                    const itemDate = new Date(item.waktu);
+                    const itemMonth = itemDate.getMonth() + 1; // Adding 1 because months are zero-based
+                    const itemYear = itemDate.getFullYear();
+
+                    // Convert filterValue (month name) to a number using monthNameToNumber
+                    console.log('Filter yang didapatkan adalah: ', filterValue);
+                    const filterMonthNumber = monthNameToNumber(filterValue);
+                    console.log(filterMonthNumber);
+                    // Compare both year and month
+                    const result = itemMonth === filterMonthNumber && itemYear === parseInt(filterValue,
+                        10);
+                    console.log('Hasil dari return item month adalah', itemMonth);
+                    return result;
+                });
+
+                console.log('Filtered Data:', filteredData);
+                return filteredData;
+            }
+
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR'
+                }).format(amount);
+            } // Set default filter to 'Tahunan'
+
+            function generateAndPrintPDF() {
+                const data = getDataFromTable();
+                generatePDF(data);
+            }
+
+            function getDataFromTable() {
+                const data = [];
+                const rows = document.getElementById('data').querySelectorAll('tr');
+
+                rows.forEach(row => {
+                    const columns = row.querySelectorAll('td');
+                    const rowData = {};
+
+                    rowData["id_akun"] = columns[0].innerText;
+                    rowData["tanggal"] = columns[1].innerText;
+
+                    // Extract numeric value from currency-formatted string
+                    rowData["nominal"] = parseCurrencyValue(columns[2].innerText);
+
+                    rowData["posisi_saldo"] = columns[3].innerText;
+
+                    data.push(rowData);
+                });
+
+                return data;
+            }
+
+            function parseCurrencyValue(currencyString) {
+                // Remove non-numeric characters, replace comma with dot, and parse as float
+                return parseFloat(currencyString.replace(/[^\d,]/g, '').replace(',', '.'));
+            }
+        });
     </script>
 
 </body>

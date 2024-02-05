@@ -5,8 +5,11 @@
 =======
 # Aplikasi BumDes Sederhana
 
+<<<<<<< HEAD
 ![BumDes Logo](link/to/logo.png)
 >>>>>>> 5f0b6c6 (Update README.md)
+=======
+>>>>>>> e8940f1 (Update README.md)
 
 Ini adalah contoh aplikasi BumDes (Badan Usaha Milik Desa) sederhana yang dibangun dengan menggunakan NodeJS dan XAMPP. Aplikasi ini dirancang untuk membantu pengelolaan keuangan dan informasi terkait di tingkat desa.
 

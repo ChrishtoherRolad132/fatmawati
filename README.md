@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Aplikasi BumDes Sederhana
 
 
@@ -44,3 +45,10 @@ Aplikasi ini dilisensikan di bawah [MIT License](link/to/license).
 **Penting!!**: Aplikasi ini telah diuji pada sistem operasi Windows dan Linux. Pastikan sistem operasi Anda mendukung sebelum menjalankan aplikasi.
 
 Terima kasih telah menggunakan Aplikasi BumDes Sederhana! Jangan ragu untuk menghubungi kami jika Anda memiliki pertanyaan atau masukan.
+=======
+Ini adalah contoh aplikasi BumDes sederhana yang dibangun dengan NodeJS dan XAMPP. Untuk memulai menggunakan apliasi ini silahkan menginstall modulenya terlebih dahulu dengan 
+npm i
+kemudian dalam folder db silahkan import data sql yang telah disediakan.
+Penting!! 
+Untuk Sistem Operasi Berbasis Unix/Linux, silahlan menghapus bagian akhir dengan text yang mengandung InnoDB disetiap sql-nya.
+>>>>>>> 169fbc5 (Create README.md)

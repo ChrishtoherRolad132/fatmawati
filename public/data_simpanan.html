@@ -64,7 +64,6 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Data</h6>
                         <a class="collapse-item" href="/kodeAkun">Kode Akun</a>
-                        <a class="collapse-item" href="#">Jenis Muatan</a>
                     </div>
                 </div>
             </li>
@@ -80,9 +79,8 @@
                     data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Detail Transaksi</h6>
-                        <a class="collapse-item" href="/dataMasuk">Data Masuk</a>
-                        <a class="collapse-item" href="/dataSimpan">Simpanan</a>
-                        <a class="collapse-item" href="/dataPinjam">Pinjaman</a>
+                        <a class="collapse-item" href="/dataSimpanan">Simpanan</a>
+                        <a class="collapse-item" href="/dataPinjaman">Pinjaman</a>
                         <a class="collapse-item" href="/jurnalUmum">Jurnal Umum</a>
                     </div>
                 </div>
@@ -104,13 +102,16 @@
                 <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Data Laporan</h6>
-                        <a class="collapse-item" href="#">Jurnal Harian</a>
-                        <a class="collapse-item" href="#">Buku Besar</a>
-                        <a class="collapse-item" href="#">Neraca Saldo</a>
-                        <a class="collapse-item" href="#">Laba Rugi</a>
+                        <a class="collapse-item" href="/jurnalHarian">Jurnal Harian</a>
+                        <a class="collapse-item" href="/bukuBesar">Buku Besar</a>
+                        <a class="collapse-item" href="neracaSaldo">Neraca Saldo</a>
+                        <a class="collapse-item" href="labaRugi">Laba Rugi</a>
                     </div>
                 </div>
             </li>
+
+            <!-- Divider -->
+
 
             <!-- Nav Item - Charts -->
 
@@ -271,6 +272,11 @@
                                                                     title="Klik Untuk Menambah Data Akun Baru"><i
                                                                         class="fas fa-plus"></i></button></td>
                                                         </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <p class="bg-success" id="klaim"></p>
+                                                            </td>
+                                                        </tr>
                                                     </tfoot>
                                                     <tbody id="data">
                                                     </tbody>
@@ -372,22 +378,12 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label" for="rek">Rekening</label>
-                                <div class="col-sm-10">
-                                    <div class="input-group input-group-merge">
-                                        <span id="rek2" class="input-group-text"><i
-                                                class="fas fa-dollar-sign"></i></span>
-                                        <input type="text" class="form-control" id="rek"
-                                            placeholder="Masukkan Nomor rekening" aria-describedby="rek2">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label" for="nominal">Nominal</label>
                                 <div class="col-sm-10">
                                     <div class="input-group input-group-merge">
                                         <span id="nominal2" class="input-group-text">Rp.</span>
-                                        <input type="number" class="form-control" id="date" aria-describedby="nominal2">
+                                        <input type="number" class="form-control" id="nominal"
+                                            aria-describedby="nominal2">
                                     </div>
                                 </div>
                             </div>
@@ -416,10 +412,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-sm-10">
+                                    <p class="bg-success" id="success"></p>
+                                </div>
+                            </div>
                             <div class="row justify-content-end">
                                 <div class="col-sm-10">
-                                    <button type="submit"
-                                        class="btn btn-primary waves-effect waves-light">Kirim</button>
+                                    <button type="button" class="btn btn-primary waves-effect waves-light"
+                                        onclick="sendData()">Kirim</button>
                                 </div>
                             </div>
                         </form>
@@ -463,9 +464,70 @@
             // Mengisi nilai input dengan tanggal yang diformat
             $("#tanggal").val(tanggalFormat(date));
         });
+
+        function sendData() {
+            var konfirmasi = window.confirm(`Apakah data telah cocok?`);
+            if (konfirmasi) {
+                var data = {
+                    nama: $('#nama').val(),
+                    NIK: $('#NIK').val(),
+                    waktu: $('#tanggal').val(),
+                    nominal: $('#nominal').val(),
+                    jangka: $('#jangka').val(),
+                    no_hp: $('#hp').val()
+                }
+                var jsonData = JSON.stringify(data);
+                console.log(`Data yang akan dikirim adalah: `, jsonData);
+                $.ajax({
+                    url: '/api/dataSimpanan',
+                    method: 'post',
+                    data: jsonData,
+                    contentType: 'application/json',
+                    success: (data) => {
+                        console.log(`Data berhasil dikirim`);
+                        $('#success').text('Data berhasil dikirim');
+                        location.reload();
+
+                    },
+                    error: (error) => {
+                        console.error(`Error ketika mengirimkan data`, error);
+                        window.alert('Data gagal dikirimkan');
+                    }
+                });
+            } else {
+                window.alert(`Rajin istirahat dek, supaya ko bisa fokus juga`);
+            }
+        }
+
+        let claimedIds = [];
+
         $(document).ready(function () {
+
+            // AJAX untuk mendapatkan data dari server
             $.ajax({
-                url: './simpanan.json',
+                url: 'data/data.json',
+                dataType: 'json',
+                success: function (data) {
+                    // Mengisi array claimedIds dengan id_data dari data yang diterima
+                    claimedIds.push(...data.map(item => item.id_data));
+
+                    // Lakukan sesuatu dengan data yang diterima dari server
+                    console.log('Data yang diterima dari server:', data);
+
+                    // Anda dapat memproses data dan menampilkan pada halaman web
+                    // Contoh: Menambahkan data ke tabel atau elemen lainnya
+                },
+                error: function (error) {
+                    console.error('Error fetching data from server:', error);
+                }
+            });
+        });
+
+
+        $(document).ready(function () {
+
+            $.ajax({
+                url: '/api/dataSimpan',
                 dataType: 'json',
                 success: function (data) {
                     const tbody = $('#data');
@@ -473,29 +535,28 @@
                     $.each(data, function (index, item) {
                         const row = $('<tr>');
                         const nominal = item.nominal;
-                        var codeAkunCell = $('<td>').text(item.kode_akun);
+                        var codeAkunCell = $('<td>').text(item.id_akun);
                         var namaCell = $('<td>').text(item.nama);
-                        var rekeningCell = $('<td>').text(item.rek);
+                        var rekeningCell = $('<td>').text(item.no_hp);
                         var nominalCell = $('<td>').text(formatCurrency(nominal));
-                        var tempoCell = $('<td>').text(item.tempo);
-
+                        var tempoCell = $('<td>').text(item.jangka);
 
                         const actionsCell = $('<td>');
 
-                        const editButton = $('<button>').addClass('btn btn-success')
-                            .html('<i class="fas fa-pencil-alt"></i>')
-                            .click(function () {
-                                handleEdit(item);
-                            });
+                        const isIdClaimed = claimedIds.includes(item.id_data);
 
-                        const deleteButton = $('<button>').addClass('btn btn-danger')
-                            .html('<i class="fas fa-trash"></i>')
-                            .click(function () {
-                                handleDelete(item);
-                            });
+                        if (!isIdClaimed) {
+                            const claimButtn = $('<button>').addClass('btn btn-primary')
+                                .html('<i class="fas fa-check"></i>')
+                                .attr('title', 'Tandai telah diklaim')
+                                .click(function () {
+                                    handleClaim(item);
 
-                        actionsCell.append(editButton);
-                        actionsCell.append(deleteButton);
+                                });
+
+                            actionsCell.append(claimButtn);
+                        }
+
                         row.append(codeAkunCell, namaCell, rekeningCell, nominalCell,
                             tempoCell, actionsCell);
                         tbody.append(row);
@@ -507,14 +568,61 @@
             });
 
             // Replace these functions with your own implementation
-            function handleEdit(item) {
-                console.log('Edit:', item);
-                // Add your edit logic here
-            }
+            // function handleEdit(item) {
+            //     console.log('Edit:', item);
+            //     // Add your edit logic here
+            // }
 
-            function handleDelete(item) {
-                console.log('Delete:', item);
-                // Add your delete logic here
+            function handleClaim(item) {
+                console.log('Claim:', item);
+                let bunga;
+                let nominal = item.nominal;
+                let jangka = item.jangka;
+
+                if (jangka < 6) {
+                    bunga = 3;
+                } else if (jangka <= 12) {
+                    bunga = 4;
+                } else if (jangka <= 24) {
+                    bunga = 5;
+                } else {
+                    bunga = 6;
+                }
+
+                // Menghitung jumlah bunga
+                let jumlahBunga = (nominal * bunga) / 100;
+                var totalTabungan = nominal + jumlahBunga;
+                var date = new Date();
+
+                const data = {
+                    id: item.id_data,
+                    nama: item.nama,
+                    NIK: item.NIK,
+                    nominal: totalTabungan,
+                    jangka: '-',
+                    waktu: date,
+                    no_hp: item.no_hp,
+                    status: 'claimed'
+                }
+                var dataJSON = JSON.stringify(data);
+                var konfirmasi = window.confirm(
+                    `Tandai penabung atas nama ${item.nama} telah mengklaim simpanannya?`);
+                if (konfirmasi) {
+                    $.ajax({
+                        url: '/api/klaimSimpanan',
+                        type: 'post',
+                        contentType: 'application/json',
+                        data: dataJSON,
+                        success: (dataJSON) => {
+                            console.log('Berhasil mengklaim Data');
+                            $('#klaim').text('Data telah diklaim dengan id: ', item.id_akun);
+                            location.reload();
+                        },
+                        error: (error) => {
+                            window.alert(`Kesalah dalam melakukan operasi: `, error)
+                        }
+                    });
+                }
             }
         });
     </script>

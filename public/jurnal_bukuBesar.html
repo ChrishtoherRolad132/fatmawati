@@ -64,7 +64,6 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Data</h6>
                         <a class="collapse-item" href="/kodeAkun">Kode Akun</a>
-                        <a class="collapse-item" href="#">Jenis Muatan</a>
                     </div>
                 </div>
             </li>
@@ -80,9 +79,8 @@
                     data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Detail Transaksi</h6>
-                        <a class="collapse-item" href="/dataMasuk">Data Masuk</a>
-                        <a class="collapse-item" href="/dataSimpan">Simpanan</a>
-                        <a class="collapse-item" href="/dataPinjam">Pinjaman</a>
+                        <a class="collapse-item" href="/dataSimpanan">Simpanan</a>
+                        <a class="collapse-item" href="/dataPinjaman">Pinjaman</a>
                         <a class="collapse-item" href="/jurnalUmum">Jurnal Umum</a>
                     </div>
                 </div>
@@ -104,10 +102,10 @@
                 <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Data Laporan</h6>
-                        <a class="collapse-item" href="#">Jurnal Harian</a>
-                        <a class="collapse-item" href="#">Buku Besar</a>
-                        <a class="collapse-item" href="#">Neraca Saldo</a>
-                        <a class="collapse-item" href="#">Laba Rugi</a>
+                        <a class="collapse-item" href="/jurnalHarian">Jurnal Harian</a>
+                        <a class="collapse-item" href="/bukuBesar">Buku Besar</a>
+                        <a class="collapse-item" href="neracaSaldo">Neraca Saldo</a>
+                        <a class="collapse-item" href="labaRugi">Laba Rugi</a>
                     </div>
                 </div>
             </li>
@@ -524,6 +522,147 @@
                 });
 
                 return data;
+            }
+
+            function generatePDF(data) {
+                let totalDebit = 0;
+                let totalKredit = 0;
+
+                data.forEach((dataItem) => {
+                    const nominalValue = parseInt(dataItem.nominal, 10);
+
+                    if (dataItem['posisi_saldo'] === 'Debit') {
+                        totalDebit += nominalValue;
+                    } else if (dataItem['posisi_saldo'] === 'Kredit') {
+                        totalKredit += nominalValue;
+                    }
+                });
+
+                const totalValue = totalDebit - totalKredit;
+                console.log(totalValue);
+                formatCurrency(totalValue);
+                console.log(data);
+                var docDefinition = {
+                    pageSize: 'A4',
+                    content: [{
+                            text: `Buku Besar`,
+                            style: 'header'
+                        },
+                        {
+                            text: `Surat ini dikeluarkan resmi oleh bumdes desa dengan keterangan sebagai berikut:
+        nama    : Admin 
+        lokasi : Kantor Desa Umbele`,
+                            style: 'praph1'
+                        },
+                        {
+                            table: {
+                                headerRows: 1,
+                                widths: ['auto', 'auto', 'auto', 'auto'],
+                                body: [
+                                    ['ID Akun', 'Waktu Transaksi', 'Nominal', 'Posisi Saldo'],
+                                    ...data.map(item => [
+                                        item["id_akun"],
+                                        item["tanggal"],
+                                        formatCurrency(item.nominal),
+                                        item["posisi_saldo"]
+                                    ]),
+                                    [{
+                                            text: 'Total:',
+                                            colSpan: 2,
+                                            alignment: 'right',
+                                            bold: true
+                                        },
+                                        {},
+                                        {
+                                            text: formatCurrency(totalValue),
+                                            colSpan: 2,
+                                            alignment: 'center'
+                                        },
+                                        {}
+                                    ]
+                                ]
+                            }
+                        },
+                        {
+                            text: '\n'
+                        },
+                        {
+                            text: 'Demikian surat laporan disampaikan dengan sangat akurat sesuai dengan arahan dari admin. Apabila ada kesalahan dalam penulisan maka kami pihak dibawah ini akan siap bertanggung jawab.'
+                        },
+                        {
+                            text: '\n'
+                        },
+                        {
+                            text: '\n'
+                        },
+                        {
+                            text: 'Hormat Kami,'
+                        },
+                        {
+                            text: '\n'
+                        },
+                        {
+                            text: '\n'
+                        },
+                        {
+                            text: '\n'
+                        },
+                        {
+                            text: '\n'
+                        },
+                        {
+                            text: '\n'
+                        },
+                        {
+                            text: '\n'
+                        },
+                        {
+                            text: '\n'
+                        },
+                        {
+                            text: '\n'
+                        },
+                        {
+                            columns: [{
+                                    width: 'auto',
+                                    text: [
+                                        '(.............)',
+                                        '\n',
+                                        {
+                                            text: 'Kepala Desa',
+                                            bold: true
+                                        },
+                                    ]
+                                },
+                                {
+                                    alignment: 'right',
+                                    text: [
+                                        '(..............)',
+                                        '\n',
+                                        {
+                                            text: 'Admin',
+                                            bold: true
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    styles: {
+                        header: {
+                            fontSize: 18,
+                            bold: true,
+                            alignment: 'center',
+                            margin: [0, 0, 0, 12]
+                        },
+                        praph1: {
+                            margin: [0, 0, 0, 12]
+                        }
+                    }
+                };
+
+                // Generate and open the PDF
+                pdfMake.createPdf(docDefinition).open();
             }
 
             function parseCurrencyValue(currencyString) {

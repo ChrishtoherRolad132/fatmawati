@@ -344,33 +344,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
     <script>
-        function ubahFormatTanggal(tanggalAwal) {
-            // Pisahkan hari, bulan, dan tahun
-            var [hari, bulan, tahun] = tanggalAwal.split('-');
-
-            // Array untuk menyimpan nama bulan dalam bahasa Inggris
-            var namaBulan = [
-                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-            ];
-
-            // Ambil nama bulan sesuai indeks (bulan - 1 karena indeks dimulai dari 0)
-            var namaBulanStr = namaBulan[parseInt(bulan, 10) - 1];
-
-            // Format ulang tanggal
-            var tanggalHasil = hari + ' ' + namaBulanStr + ' ' + tahun;
-
-            return tanggalHasil;
-        }
-
-
         document.addEventListener('DOMContentLoaded', () => {
             fetchDataAndDisplayTable();
         });
 
         async function fetchDataAndDisplayTable() {
             try {
-                const response = await fetch('jurnal_umum.json');
+                const response = await fetch('/api/jurnalApis');
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
@@ -382,6 +362,16 @@
             }
         }
 
+        function ubahFormatTanggal(tanggalAwal) {
+            let options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            return new Date(tanggalAwal).toLocaleDateString('id-ID', options);
+        }
+
         function displayDataInTable(data) {
             const tbody = document.getElementById('data');
 
@@ -390,18 +380,18 @@
             let totalKredit = 0;
 
             data.forEach(item => {
-                var tanggal = ubahFormatTanggal(item.tanggal);
+                var tanggal = ubahFormatTanggal(item.waktu);
                 const row = `<tr>
-            <td>${item["kode_akun"]}</td>
+            <td>${item["id_akun"]}</td>
             <td>${tanggal}</td>
             <td>${formatCurrency(parseFloat(item.nominal))}</td>
             <td>${item["posisi_saldo"]}</td>
         </tr>`;
                 tbody.innerHTML += row;
                 const nominalValue = parseFloat(item.nominal);
-                if (item['posisi_saldo'] === 'debit') {
+                if (item['posisi_saldo'] === 'Debit') {
                     totalDebit += nominalValue;
-                } else if (item['posisi_saldo'] === 'kredit') {
+                } else if (item['posisi_saldo'] === 'Kredit') {
                     totalKredit += nominalValue;
                 }
             });
@@ -427,7 +417,7 @@
                 }
             }
             const saldoCell = document.getElementById('saldoValue');
-            let saldo = 8000000;
+            let saldo = 1000000;
             const saldoValue = totalValue + saldo;
             saldoCell.textContent = formatCurrency(saldoValue);
         }
@@ -453,14 +443,13 @@
                 const columns = row.querySelectorAll('td');
                 const rowData = {};
 
-                rowData["kode_akun"] = columns[0].innerText;
-                rowData["id_transaksi"] = columns[1].innerText;
-                rowData["tanggal"] = columns[2].innerText;
+                rowData["id_akun"] = columns[0].innerText;
+                rowData["waktu"] = columns[1].innerText;
 
                 // Extract numeric value from currency-formatted string
-                rowData["nominal"] = parseCurrencyValue(columns[3].innerText);
+                rowData["nominal"] = parseCurrencyValue(columns[2].innerText);
 
-                rowData["posisi_saldo"] = columns[4].innerText;
+                rowData["posisi_saldo"] = columns[3].innerText;
 
                 data.push(rowData);
             });
@@ -480,9 +469,9 @@
             data.forEach((data) => {
                 const nominalValue = parseInt(data.nominal, 10);
 
-                if (data['posisi_saldo'] === 'debit') {
+                if (data['posisi_saldo'] === 'Debit') {
                     totalDebit += nominalValue;
-                } else if (data['posisi_saldo'] === 'kredit') {
+                } else if (data['posisi_saldo'] === 'Kredit') {
                     totalKredit += nominalValue;
                 }
             });
@@ -490,7 +479,7 @@
             const pengeluranaValue = totalKredit;
             const pedapatanValue = totalDebit;
             const totalValue = totalDebit - totalKredit;
-            var saldo = 8000000;
+            var saldo = 10000000;
             const saldoValue = formatCurrency(totalValue + saldo);
             var docDefinition = {
                 pageSize: 'A4',
@@ -512,8 +501,8 @@
                             body: [
                                 ['Kode Akun', 'Waktu Transaksi', 'Nominal', 'Posisi Saldo'],
                                 ...data.map(item => [
-                                    item["kode_akun"],
-                                    item["tanggal"],
+                                    item["id_akun"],
+                                    item["waktu"],
                                     formatCurrency(item.nominal),
                                     item["posisi_saldo"]
                                 ]),

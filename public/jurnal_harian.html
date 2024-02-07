@@ -254,8 +254,8 @@
                                             </tbody>
                                             <tfoot>
                                                 <tr>
-                                                    <td colspan="3" style="text-align: right;"><b>Total: </b></td>
-                                                    <td colspan="2" id="total" style="text-align: center;"></td>
+                                                    <td colspan="2" style="text-align: right;"><b>Total: </b></td>
+                                                    <td colspan="1" id="total" style="text-align: center;"></td>
                                                 </tr>
                                             </tfoot>
                                         </table>
@@ -329,13 +329,27 @@
 
         async function fetchDataAndDisplayTable() {
             try {
-                const response = await fetch('jurnal_harian.json');
+                const response = await fetch('/api/jurnalApis');
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
 
                 const data = await response.json();
-                displayDataInTable(data);
+
+                // Mendapatkan tanggal hari ini
+                const today = new Date();
+                const todayDate = today.getDate();
+                const todayMonth = today.getMonth();
+                const todayYear = today.getFullYear();
+
+                // Filter data berdasarkan tanggal hari ini
+                const filteredData = data.filter(entry => {
+                    const entryDate = new Date(entry.waktu);
+                    return entryDate.getDate() === todayDate && entryDate.getMonth() === todayMonth &&
+                        entryDate.getFullYear() === todayYear;
+                });
+
+                displayDataInTable(filteredData);
             } catch (error) {
                 console.error('Error fetching or displaying data:', error);
                 // Display a user-friendly error message on your webpage
@@ -352,16 +366,16 @@
 
             data.forEach(item => {
                 const row = `<tr>
-                        <td>${item["kode akun"]}</td>
-                        <td>${item["waktu transaksi"]}</td>
+                        <td>${item["id_akun"]}</td>
+                        <td>${ubahFormatTanggal(item.waktu)}</td>
                         <td>${formatCurrency(parseFloat(item.nominal))}</td>
-                        <td>${item["posisi saldo"]}</td>
+                        <td>${item["posisi_saldo"]}</td>
                     </tr>`;
                 tbody.innerHTML += row;
                 const nominalValue = parseInt(item.nominal, 10);
-                if (item['posisi saldo'] === 'debit') {
+                if (item['posisi_saldo'] === 'Debit') {
                     totalDebit += nominalValue;
-                } else if (item['posisi saldo'] === 'kredit') {
+                } else if (item['posisi_saldo'] === 'Kredit') {
                     totalKredit += nominalValue;
                 }
             });
@@ -395,13 +409,13 @@
                 const columns = row.querySelectorAll('td');
                 const rowData = {};
 
-                rowData["kode akun"] = columns[0].innerText;
-                rowData["waktu transaksi"] = columns[1].innerText;
+                rowData["id_akun"] = columns[0].innerText;
+                rowData["waktu"] = columns[1].innerText;
 
                 // Extract numeric value from currency-formatted string
                 rowData["nominal"] = parseCurrencyValue(columns[2].innerText);
 
-                rowData["posisi saldo"] = columns[3].innerText;
+                rowData["posisi_saldo"] = columns[3].innerText;
 
                 data.push(rowData);
             });
@@ -414,6 +428,16 @@
             return parseFloat(currencyString.replace(/[^\d,]/g, '').replace(',', '.'));
         }
 
+        function ubahFormatTanggal(tanggalAwal) {
+            let options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            return new Date(tanggalAwal).toLocaleDateString('id-ID', options);
+        }
+
         function generatePDF(data) {
             let totalDebit = 0;
             let totalKredit = 0;
@@ -421,9 +445,9 @@
             data.forEach((dataItem) => {
                 const nominalValue = parseInt(dataItem.nominal, 10);
 
-                if (dataItem['posisi saldo'] === 'debit') {
+                if (dataItem['posisi_saldo'] === 'Debit') {
                     totalDebit += nominalValue;
-                } else if (dataItem['posisi saldo'] === 'kredit') {
+                } else if (dataItem['posisi_saldo'] === 'Kredit') {
                     totalKredit += nominalValue;
                 }
             });
@@ -434,7 +458,7 @@
             var docDefinition = {
                 pageSize: 'A4',
                 content: [{
-                        text: `Jurnal Harian Report tanggal ${data[0]["waktu transaksi"]}`,
+                        text: `Jurnal Harian Report tanggal ${data[0]["waktu"]}`,
                         style: 'header'
                     },
                     {
@@ -451,10 +475,10 @@
                             body: [
                                 ['Kode Akun', 'Waktu Transaksi', 'Nominal', 'Posisi Saldo'],
                                 ...data.map(item => [
-                                    item["kode akun"],
-                                    item["waktu transaksi"],
+                                    item["id_akun"],
+                                    ubahFormatTanggal(item.waktu),
                                     formatCurrency(item.nominal),
-                                    item["posisi saldo"]
+                                    item["posisi_saldo"]
                                 ]),
                                 [{
                                         text: 'Total:',

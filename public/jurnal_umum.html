@@ -441,12 +441,11 @@
                     {
                         table: {
                             headerRows: 1,
-                            widths: ['auto', 'auto', 'auto', 'auto', 'auto'],
+                            widths: ['auto', 'auto', 'auto', 'auto'],
                             body: [
-                                ['Kode Akun', 'ID Transaksi', 'Waktu Transaksi', 'Nominal', 'Posisi Saldo'],
+                                ['Kode Akun', 'Waktu Transaksi', 'Nominal', 'Posisi Saldo'],
                                 ...data.map(item => [
                                     item["kode_akun"],
-                                    item["id_transaksi"],
                                     item["tanggal"],
                                     formatCurrency(item.nominal),
                                     item["posisi_saldo"]

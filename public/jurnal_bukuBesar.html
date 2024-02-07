@@ -489,187 +489,187 @@
                 console.log('Filtered Data:', filteredData);
                 return filteredData;
             }
+        });
 
-            function formatCurrency(amount) {
-                return new Intl.NumberFormat('id-ID', {
-                    style: 'currency',
-                    currency: 'IDR'
-                }).format(amount);
-            } // Set default filter to 'Tahunan'
+        function generateAndPrintPDF() {
+            const data = getDataFromTable();
+            generatePDF(data);
+        }
 
-            function generateAndPrintPDF() {
-                const data = getDataFromTable();
-                generatePDF(data);
-            }
+        function getDataFromTable() {
+            const data = [];
+            const rows = document.getElementById('data').querySelectorAll('tr');
 
-            function getDataFromTable() {
-                const data = [];
-                const rows = document.getElementById('data').querySelectorAll('tr');
+            rows.forEach(row => {
+                const columns = row.querySelectorAll('td');
+                const rowData = {};
 
-                rows.forEach(row => {
-                    const columns = row.querySelectorAll('td');
-                    const rowData = {};
+                rowData["id_akun"] = columns[0].innerText;
+                rowData["tanggal"] = columns[1].innerText;
 
-                    rowData["id_akun"] = columns[0].innerText;
-                    rowData["tanggal"] = columns[1].innerText;
+                // Extract numeric value from currency-formatted string
+                rowData["nominal"] = parseCurrencyValue(columns[2].innerText);
 
-                    // Extract numeric value from currency-formatted string
-                    rowData["nominal"] = parseCurrencyValue(columns[2].innerText);
+                rowData["posisi_saldo"] = columns[3].innerText;
 
-                    rowData["posisi_saldo"] = columns[3].innerText;
+                data.push(rowData);
+            });
 
-                    data.push(rowData);
-                });
+            return data;
+        }
 
-                return data;
-            }
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR'
+            }).format(amount);
+        } // Set default filter to 'Tahunan'
 
-            function generatePDF(data) {
-                let totalDebit = 0;
-                let totalKredit = 0;
+        function parseCurrencyValue(currencyString) {
+            // Remove non-numeric characters, replace comma with dot, and parse as float
+            return parseFloat(currencyString.replace(/[^\d,]/g, '').replace(',', '.'));
+        }
 
-                data.forEach((dataItem) => {
-                    const nominalValue = parseInt(dataItem.nominal, 10);
+        function generatePDF(data) {
+            let totalDebit = 0;
+            let totalKredit = 0;
 
-                    if (dataItem['posisi_saldo'] === 'Debit') {
-                        totalDebit += nominalValue;
-                    } else if (dataItem['posisi_saldo'] === 'Kredit') {
-                        totalKredit += nominalValue;
-                    }
-                });
+            data.forEach((dataItem) => {
+                const nominalValue = parseInt(dataItem.nominal, 10);
 
-                const totalValue = totalDebit - totalKredit;
-                console.log(totalValue);
-                formatCurrency(totalValue);
-                console.log(data);
-                var docDefinition = {
-                    pageSize: 'A4',
-                    content: [{
-                            text: `Buku Besar`,
-                            style: 'header'
-                        },
-                        {
-                            text: `Surat ini dikeluarkan resmi oleh bumdes desa dengan keterangan sebagai berikut:
-        nama    : Admin 
-        lokasi : Kantor Desa Umbele`,
-                            style: 'praph1'
-                        },
-                        {
-                            table: {
-                                headerRows: 1,
-                                widths: ['auto', 'auto', 'auto', 'auto'],
-                                body: [
-                                    ['ID Akun', 'Waktu Transaksi', 'Nominal', 'Posisi Saldo'],
-                                    ...data.map(item => [
-                                        item["id_akun"],
-                                        item["tanggal"],
-                                        formatCurrency(item.nominal),
-                                        item["posisi_saldo"]
-                                    ]),
-                                    [{
-                                            text: 'Total:',
-                                            colSpan: 2,
-                                            alignment: 'right',
-                                            bold: true
-                                        },
-                                        {},
-                                        {
-                                            text: formatCurrency(totalValue),
-                                            colSpan: 2,
-                                            alignment: 'center'
-                                        },
-                                        {}
-                                    ]
+                if (dataItem['posisi_saldo'] === 'Debit') {
+                    totalDebit += nominalValue;
+                } else if (dataItem['posisi_saldo'] === 'Kredit') {
+                    totalKredit += nominalValue;
+                }
+            });
+
+            const totalValue = totalDebit - totalKredit;
+            console.log(totalValue);
+            formatCurrency(totalValue);
+            console.log(data);
+            var docDefinition = {
+                pageSize: 'A4',
+                content: [{
+                        text: `Buku Besar`,
+                        style: 'header'
+                    },
+                    {
+                        text: `Surat ini dikeluarkan resmi oleh bumdes desa dengan keterangan sebagai berikut:
+nama    : Admin 
+lokasi : Kantor Desa Umbele`,
+                        style: 'praph1'
+                    },
+                    {
+                        table: {
+                            headerRows: 1,
+                            widths: ['auto', 'auto', 'auto', 'auto'],
+                            body: [
+                                ['ID Akun', 'Waktu Transaksi', 'Nominal', 'Posisi Saldo'],
+                                ...data.map(item => [
+                                    item["id_akun"],
+                                    item["tanggal"],
+                                    formatCurrency(item.nominal),
+                                    item["posisi_saldo"]
+                                ]),
+                                [{
+                                        text: 'Total:',
+                                        colSpan: 2,
+                                        alignment: 'right',
+                                        bold: true
+                                    },
+                                    {},
+                                    {
+                                        text: formatCurrency(totalValue),
+                                        colSpan: 2,
+                                        alignment: 'center'
+                                    },
+                                    {}
                                 ]
-                            }
-                        },
-                        {
-                            text: '\n'
-                        },
-                        {
-                            text: 'Demikian surat laporan disampaikan dengan sangat akurat sesuai dengan arahan dari admin. Apabila ada kesalahan dalam penulisan maka kami pihak dibawah ini akan siap bertanggung jawab.'
-                        },
-                        {
-                            text: '\n'
-                        },
-                        {
-                            text: '\n'
-                        },
-                        {
-                            text: 'Hormat Kami,'
-                        },
-                        {
-                            text: '\n'
-                        },
-                        {
-                            text: '\n'
-                        },
-                        {
-                            text: '\n'
-                        },
-                        {
-                            text: '\n'
-                        },
-                        {
-                            text: '\n'
-                        },
-                        {
-                            text: '\n'
-                        },
-                        {
-                            text: '\n'
-                        },
-                        {
-                            text: '\n'
-                        },
-                        {
-                            columns: [{
-                                    width: 'auto',
-                                    text: [
-                                        '(.............)',
-                                        '\n',
-                                        {
-                                            text: 'Kepala Desa',
-                                            bold: true
-                                        },
-                                    ]
-                                },
-                                {
-                                    alignment: 'right',
-                                    text: [
-                                        '(..............)',
-                                        '\n',
-                                        {
-                                            text: 'Admin',
-                                            bold: true
-                                        }
-                                    ]
-                                }
                             ]
                         }
-                    ],
-                    styles: {
-                        header: {
-                            fontSize: 18,
-                            bold: true,
-                            alignment: 'center',
-                            margin: [0, 0, 0, 12]
-                        },
-                        praph1: {
-                            margin: [0, 0, 0, 12]
-                        }
+                    },
+                    {
+                        text: '\n'
+                    },
+                    {
+                        text: 'Demikian surat laporan disampaikan dengan sangat akurat sesuai dengan arahan dari admin. Apabila ada kesalahan dalam penulisan maka kami pihak dibawah ini akan siap bertanggung jawab.'
+                    },
+                    {
+                        text: '\n'
+                    },
+                    {
+                        text: '\n'
+                    },
+                    {
+                        text: 'Hormat Kami,'
+                    },
+                    {
+                        text: '\n'
+                    },
+                    {
+                        text: '\n'
+                    },
+                    {
+                        text: '\n'
+                    },
+                    {
+                        text: '\n'
+                    },
+                    {
+                        text: '\n'
+                    },
+                    {
+                        text: '\n'
+                    },
+                    {
+                        text: '\n'
+                    },
+                    {
+                        text: '\n'
+                    },
+                    {
+                        columns: [{
+                                width: 'auto',
+                                text: [
+                                    '(.............)',
+                                    '\n',
+                                    {
+                                        text: 'Kepala Desa',
+                                        bold: true
+                                    },
+                                ]
+                            },
+                            {
+                                alignment: 'right',
+                                text: [
+                                    '(..............)',
+                                    '\n',
+                                    {
+                                        text: 'Admin',
+                                        bold: true
+                                    }
+                                ]
+                            }
+                        ]
                     }
-                };
+                ],
+                styles: {
+                    header: {
+                        fontSize: 18,
+                        bold: true,
+                        alignment: 'center',
+                        margin: [0, 0, 0, 12]
+                    },
+                    praph1: {
+                        margin: [0, 0, 0, 12]
+                    }
+                }
+            };
 
-                // Generate and open the PDF
-                pdfMake.createPdf(docDefinition).open();
-            }
-
-            function parseCurrencyValue(currencyString) {
-                // Remove non-numeric characters, replace comma with dot, and parse as float
-                return parseFloat(currencyString.replace(/[^\d,]/g, '').replace(',', '.'));
-            }
-        });
+            // Generate and open the PDF
+            pdfMake.createPdf(docDefinition).open();
+        }
     </script>
 
 </body>

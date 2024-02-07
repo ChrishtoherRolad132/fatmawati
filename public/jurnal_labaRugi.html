@@ -212,14 +212,23 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-
-                    <!-- Page Heading -->
-                    <h1 class="h3 mb-4 text-gray-800">Laba Rugi</h1>
-                    <button class="btn btn btn-primary" onclick="generateAndPrintPDF()"
-                        title="Klik Untuk Melihat Laporan">
-                        <span id="loading-spinner" style="display:none;"><i class="fas fa-spinner fa-spin"></i></span>
-                        <span><i class="fas fa-file-pdf"></i></span>
-                    </button>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <!-- Page Heading -->
+                            <h1 class="h3 mb-4 text-gray-800">Laba Rugi</h1>
+                            <button class="btn btn btn-primary" onclick="generateAndPrintPDF()"
+                                title="Klik Untuk Melihat Laporan">
+                                <span id="loading-spinner" style="display:none;"><i
+                                        class="fas fa-spinner fa-spin"></i></span>
+                                <span><i class="fas fa-file-pdf"></i></span>
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                        </div>
+                        <div class="col-md-4">
+                            <b id="saldoValue"></b>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="card-body">
@@ -243,24 +252,24 @@
                                                     </th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody id="data">
                                                 <tr style="text-align: center;">
                                                     <td>
                                                         <b>Pendapatan</b>
                                                     </td>
-                                                    <td id="totalPendapatan">Rp 29.916.665,00</td>
+                                                    <td id="totalPendapatan"></td>
                                                 </tr>
                                                 <tr style="text-align: center;">
                                                     <td>
                                                         <b>Pengeluaran</b>
                                                     </td>
-                                                    <td id="totalPengeluaran">Rp 13.310.000,00</td>
+                                                    <td id="totalPengeluaran">0</td>
                                                 </tr>
                                                 <tr style="text-align: center;">
                                                     <td>
                                                         <b>Laba</b>
                                                     </td>
-                                                    <td id="total">Rp 13.310.000,00</td>
+                                                    <td id="total"></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -334,77 +343,54 @@
 
         async function fetchDataAndDisplayTable() {
             try {
-                const response = await fetch('jurnal_umum.json');
+                const response = await fetch('/api/jurnalApis');
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
 
                 const data = await response.json();
+                console.log(data);
                 displayDataInTable(data);
             } catch (error) {
                 console.error('Error fetching or displaying data:', error);
-                // Display a user-friendly error message on your webpage
-                // Example: document.getElementById('error-message').innerText = 'Failed to fetch or display data';
+                // Tampilkan pesan kesalahan yang ramah pengguna pada halaman web Anda
+                // Contoh: document.getElementById('error-message').innerText = 'Gagal mengambil atau menampilkan data';
             }
         }
 
         function displayDataInTable(data) {
-            const tbody = document.getElementById('data');
-
-            // Periksa apakah elemen ditemukan sebelum menggunakan
-            if (!tbody) {
-                console.error('Element with ID "data" not found.');
-                return;
-            }
-
-            tbody.innerHTML = '';
+            let totalPendapatan = 0;
+            let totalPengeluaran = 0;
             let totalDebit = 0;
             let totalKredit = 0;
 
             data.forEach(item => {
-                const row = `<tr>
-    <td>${item["kode akun"]}</td>
-    <td>${item["id transaksi"]}</td>
-    <td>${item["waktu transaksi"]}</td>
-    <td>${formatCurrency(parseFloat(item.nominal))}</td>
-    <td>${item["posisi saldo"]}</td>
-</tr>`;
-                tbody.innerHTML += row;
-
                 const nominalValue = parseFloat(item.nominal);
-                if (item['posisi saldo'] === 'debit') {
+                if (item['posisi_saldo'] === 'Debit') {
                     totalDebit += nominalValue;
-                } else if (item['posisi saldo'] === 'kredit') {
+                    totalPendapatan +=
+                        nominalValue; // Menambahkan nilai pendapatan jika posisi saldo adalah debit
+                } else if (item['posisi_saldo'] === 'Kredit') {
                     totalKredit += nominalValue;
+                    totalPengeluaran +=
+                        nominalValue; // Menambahkan nilai pengeluaran jika posisi saldo adalah kredit
                 }
             });
 
-            // Hitung total pendapatan, pengeluaran, dan saldo
-            const totalPendapatanValue = totalDebit;
-            const totalPengeluaranValue = totalKredit;
-            const totalValue = totalDebit - totalKredit;
-            const saldoValue = totalValue + 8000000;
+            // Hitung total saldo
+            const totalValue = totalPendapatan - totalPengeluaran;
+            const saldoValue = totalValue + 10000000; // Misalnya, tambahkan nilai tetap 10.000.000 ke saldo
 
             // Tampilkan nilai pada elemen HTML
-            document.getElementById('totalPendapatan').textContent = formatCurrency(totalPendapatanValue);
-            document.getElementById('totalPengeluaran').textContent = formatCurrency(totalPengeluaranValue);
+            document.getElementById('totalPendapatan').textContent = formatCurrency(totalPendapatan);
+            document.getElementById('totalPengeluaran').textContent = formatCurrency(totalPengeluaran);
             document.getElementById('total').textContent = formatCurrency(totalValue);
 
             const saldoCell = document.getElementById('saldoValue');
             saldoCell.textContent = formatCurrency(saldoValue);
 
-            // Gantilah "data.summary" dengan objek yang sesuai dengan struktur data Anda
-            const summaryData = {
-                totalPendapatan: totalPendapatanValue,
-                totalPengeluaran: totalPengeluaranValue,
-                total: totalValue
-            };
-
-            // Menambahkan nilai summaryData ke data sebelum dikirim ke fungsi generatePDF
-            data.summary = summaryData;
-
-            // Panggil generatePDF dengan data yang telah diperbarui
-            generatePDF(data);
+            // Panggil generateAndPrintPDF ketika data sudah ditampilkan
+            generateAndPrintPDF(data);
         }
 
         function formatCurrency(amount) {
@@ -414,8 +400,13 @@
             }).format(amount);
         }
 
-        function generateAndPrintPDF() {
-            var docDefinition = {
+        function generateAndPrintPDF(data) {
+            const totalPendapatan = parseCurrencyValue(document.getElementById('totalPendapatan').textContent);
+            const totalPengeluaran = parseCurrencyValue(document.getElementById('totalPengeluaran').textContent);
+            const totalValue = parseCurrencyValue(document.getElementById('total').textContent);
+            const saldoValue = parseCurrencyValue(document.getElementById('saldoValue').textContent);
+
+            const docDefinition = {
                 pageSize: 'A4',
                 content: [{
                         text: `Jurnal Laba Rugi Tahun 2023`,
@@ -432,10 +423,10 @@
                             headerRows: 1,
                             widths: ['auto', 'auto'],
                             body: [
-                                ['Nama', 'Nlai'],
-                                ['Pendapatan', 'Rp 29.916.665,00'],
-                                ['Pengeluaran', 'Rp 13.310.000,00'],
-                                ['Laba', 'Rp 13.310.000,00']
+                                ['Nama', 'Nilai'],
+                                ['Pendapatan', formatCurrency(totalPendapatan)],
+                                ['Pengeluaran', formatCurrency(totalPengeluaran)],
+                                ['Laba', formatCurrency(totalValue)]
                             ]
                         }
                     },
@@ -519,29 +510,6 @@
 
             // Generate and open the PDF
             pdfMake.createPdf(docDefinition).open();
-        }
-
-        function getDataFromTable() {
-            const data = [];
-            const rows = document.getElementById('data').querySelectorAll('tr');
-
-            rows.forEach(row => {
-                const columns = row.querySelectorAll('td');
-                const rowData = {};
-
-                rowData["kode_akun"] = columns[0].innerText;
-                rowData["id_transaksi"] = columns[1].innerText;
-                rowData["tanggal"] = columns[2].innerText;
-
-                // Extract numeric value from currency-formatted string
-                rowData["nominal"] = parseCurrencyValue(columns[3].innerText);
-
-                rowData["posisi_saldo"] = columns[4].innerText;
-
-                data.push(rowData);
-            });
-
-            return data;
         }
 
         function parseCurrencyValue(currencyString) {

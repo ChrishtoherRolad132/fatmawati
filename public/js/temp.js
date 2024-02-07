@@ -24,8 +24,8 @@ function generatePDF(data) {
             },
             {
                 text: `Surat ini dikeluarkan resmi oleh bumdes desa dengan keterangan sebagai berikut:
-        nama    : Admin 
-        lokasi : Kantor Desa Umbele`,
+nama    : Admin 
+lokasi : Kantor Desa Umbele`,
                 style: 'praph1'
             },
             {

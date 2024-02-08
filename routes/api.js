@@ -3,6 +3,34 @@ var router = express.Router();
 var db = require('../db/db');
 const uuid = require('uuid');
 const fs = require('fs');
+const session = require('express-session');
+
+
+router.post('/login', function (req, res) {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    // Kueri SQL untuk mencari pengguna dengan email dan password yang sesuai
+    const query = 'SELECT * FROM tb_user WHERE email = ? AND password = ?';
+
+    db.query(query, [email, password], (err, results) => {
+        if (err) {
+            console.error('Kesalahan Query: ', err.stack);
+            return res.status(500).send('Kesalahan server');
+        }
+
+        if (results.length > 0) {
+            // Autentikasi berhasil
+            req.session.user = email;
+            return res.redirect('/');
+        } else {
+            // Autentikasi gagal
+            return res.redirect('/login');
+        }
+    });
+});
+
+
 
 // Function to get data
 function getData(url, tb_name) {

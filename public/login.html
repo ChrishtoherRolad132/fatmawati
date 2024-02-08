@@ -42,17 +42,16 @@
                                     </div>
                                     <form class="user">
                                         <div class="form-group">
-                                            <input type="email" class="form-control form-control-user"
-                                                id="exampleInputEmail" aria-describedby="emailHelp"
-                                                placeholder="Enter Email Address...">
+                                            <input type="email" class="form-control form-control-user" id="email"
+                                                aria-describedby="emailHelp" placeholder="Masukkan alamat email....">
                                         </div>
                                         <div class="form-group">
-                                            <input type="password" class="form-control form-control-user"
-                                                id="exampleInputPassword" placeholder="Password">
+                                            <input type="password" class="form-control form-control-user" id="password"
+                                                placeholder="Password">
                                         </div>
-                                        <a href="index.html" class="btn btn-primary btn-user btn-block">
+                                        <button class="btn btn-primary btn-user btn-block" type="submit">
                                             Login
-                                        </a>
+                                        </button>
                                         <hr>
                                 </div>
                             </div>
@@ -75,6 +74,33 @@
 
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
+    <script>
+        function login() {
+            const email = $('#email').val(); // Ambil nilai email dari input dengan id 'email'
+            const password = $('#password').val(); // Ambil nilai password dari input dengan id 'password'
+
+            // Kirim permintaan POST ke server
+            $.post('/api/login', {
+                    email: email,
+                    password: password
+                })
+                .done(function (response) {
+                    // Respons dari server berhasil
+                    window.location.href = '/'; // Redirect ke halaman utama setelah berhasil login
+                })
+                .fail(function (error) {
+                    // Respons dari server gagal atau terjadi kesalahan
+                    console.error('Kesalahan login: ', error);
+                    // Tampilkan pesan kesalahan kepada pengguna, misalnya dengan alert atau menampilkan di elemen tertentu di halaman
+                    alert('Gagal login. Silakan coba lagi.');
+                });
+        }
+
+        $('#loginForm').submit(function (event) {
+            event.preventDefault(); // Mencegah pengiriman formulir secara default
+            login(); // Panggil fungsi login untuk memproses login
+        });
+    </script>
 
 </body>
 

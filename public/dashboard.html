@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Laba Rugi</title>
+    <title>Dashboard</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -212,72 +212,189 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <!-- Page Heading -->
-                            <h1 class="h3 mb-4 text-gray-800">Laba Rugi</h1>
-                            <button class="btn btn btn-primary" onclick="generateAndPrintPDF()"
-                                title="Klik Untuk Melihat Laporan">
-                                <span id="loading-spinner" style="display:none;"><i
-                                        class="fas fa-spinner fa-spin"></i></span>
-                                <span><i class="fas fa-file-pdf"></i></span>
-                            </button>
-                        </div>
-                        <div class="col-md-4">
-                        </div>
-                        <div class="col-md-4">
-                            <b id="saldoValue"></b>
-                        </div>
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+
                     </div>
-                </div>
-                <div class="card-body">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <table class="table table-bordered dataTable" id="dataTable" width="100%"
-                                            cellspacing="0" role="grid" aria-describedby="dataTable_info"
-                                            style="width: 50%;">
-                                            <thead>
-                                                <tr role="row">
-                                                    <th class="sorting" tabindex="0" aria-controls="dataTable"
-                                                        rowspan="1" colspan="1"
-                                                        aria-label="Name: activate to sort column ascending"
-                                                        style="width: 52px;">Nama</th>
-                                                    <th class="sorting sorting_desc" tabindex="0"
-                                                        aria-controls="dataTable" rowspan="1" colspan="1"
-                                                        aria-label="Position: activate to sort column ascending"
-                                                        aria-sort="descending" style="width: 249px;">Nilai
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="data">
-                                                <tr style="text-align: center;">
-                                                    <td>
-                                                        <b>Pendapatan</b>
-                                                    </td>
-                                                    <td id="totalPendapatan"></td>
-                                                </tr>
-                                                <tr style="text-align: center;">
-                                                    <td>
-                                                        <b>Pengeluaran</b>
-                                                    </td>
-                                                    <td id="totalPengeluaran">0</td>
-                                                </tr>
-                                                <tr style="text-align: center;">
-                                                    <td>
-                                                        <b>Laba</b>
-                                                    </td>
-                                                    <td id="total"></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+
+                    <!-- Content Row -->
+                    <div class="row">
+
+                        <!-- Earnings (Monthly) Card Example -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Pendapatan Harian</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp 350.000,00</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Earnings (Monthly) Card Example -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total
+                                                Pendapatan</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp 12.450.000,00</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pending Requests Card Example -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                Pengeluaran</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp 6.000.000,00</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Earnings (Monthly) Card Example -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                Pendapatan - Pengeluaran </div>
+                                            <div class="row no-gutters align-items-center">
+                                                <div class="col-auto">
+                                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800"></div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="progress progress-sm mr-2">
+                                                        <div class="progress-bar bg-info" role="progressbar"
+                                                            style="width: 48%" aria-valuenow="600000" aria-valuemin="0"
+                                                            aria-valuemax="12450000"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fa fa-dollar-sign fa-2x text-gray-300"></i>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Content Row -->
+
+                    <div class="row">
+
+                        <!-- Area Chart -->
+                        <div class="col">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div
+                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Rangkuman Pendapatan Harian</h6>
+
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <div class="chart-area">
+                                        <div class="chartjs-size-monitor">
+                                            <div class="chartjs-size-monitor-expand">
+                                                <div class=""></div>
+                                            </div>
+                                            <div class="chartjs-size-monitor-shrink">
+                                                <div class=""></div>
+                                            </div>
+                                        </div>
+                                        <canvas id="myAreaChart" width="1037" height="320"
+                                            style="display: block; width: 1037px; height: 320px;"
+                                            class="chartjs-render-monitor"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pie Chart -->
+
+                    </div>
+
+                    <!-- Content Row -->
+                    <div class="row">
+
+                        <!-- Content Column -->
+                        <div class="col">
+
+                            <!-- Project Card Example -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Detail Pengeluaran</h6>
+                                </div>
+                                <div class="card-body">
+                                    <h4 class="small font-weight-bold">Server Migration <span
+                                            class="float-right">20%</span></h4>
+                                    <div class="progress mb-4">
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 20%"
+                                            aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <h4 class="small font-weight-bold">Sales Tracking <span
+                                            class="float-right">40%</span></h4>
+                                    <div class="progress mb-4">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 40%"
+                                            aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <h4 class="small font-weight-bold">Customer Database <span
+                                            class="float-right">60%</span></h4>
+                                    <div class="progress mb-4">
+                                        <div class="progress-bar" role="progressbar" style="width: 60%"
+                                            aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <h4 class="small font-weight-bold">Payout Details <span
+                                            class="float-right">80%</span></h4>
+                                    <div class="progress mb-4">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: 80%"
+                                            aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <h4 class="small font-weight-bold">Account Setup <span
+                                            class="float-right">Complete!</span></h4>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%"
+                                            aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Color System -->
+
+
+                        </div>
+
+
+                    </div>
+
                 </div>
                 <!-- /.container-fluid -->
 
@@ -288,7 +405,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Your Website 2020</span>
+                        <span>Copyright © Your Website 2021</span>
                     </div>
                 </div>
             </footer>
@@ -301,7 +418,7 @@
     <!-- End of Page Wrapper -->
 
     <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
+    <a class="scroll-to-top rounded" href="#page-top" style="display: none;">
         <i class="fas fa-angle-up"></i>
     </a>
 
@@ -334,189 +451,15 @@
 
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchDataAndDisplayTable();
-        });
 
-        async function fetchDataAndDisplayTable() {
-            try {
-                const response = await fetch('/api/jurnalApis');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
+    <!-- Page level plugins -->
+    <script src="vendor/chart.js/Chart.min.js"></script>
 
-                const data = await response.json();
-                console.log(data);
-                displayDataInTable(data);
-            } catch (error) {
-                console.error('Error fetching or displaying data:', error);
-                // Tampilkan pesan kesalahan yang ramah pengguna pada halaman web Anda
-                // Contoh: document.getElementById('error-message').innerText = 'Gagal mengambil atau menampilkan data';
-            }
-        }
+    <!-- Page level custom scripts -->
+    <script src="js/demo/chart-area-demo.js"></script>
+    <script src="js/demo/chart-pie-demo.js"></script>
 
-        function displayDataInTable(data) {
-            let totalPendapatan = 0;
-            let totalPengeluaran = 0;
-            let totalDebit = 0;
-            let totalKredit = 0;
 
-            data.forEach(item => {
-                const nominalValue = parseFloat(item.nominal);
-                if (item['posisi_saldo'] === 'Debit') {
-                    totalDebit += nominalValue;
-                    totalPendapatan +=
-                        nominalValue; // Menambahkan nilai pendapatan jika posisi saldo adalah debit
-                } else if (item['posisi_saldo'] === 'Kredit') {
-                    totalKredit += nominalValue;
-                    totalPengeluaran +=
-                        nominalValue; // Menambahkan nilai pengeluaran jika posisi saldo adalah kredit
-                }
-            });
-
-            // Hitung total saldo
-            const totalValue = totalPendapatan - totalPengeluaran;
-            const saldoValue = totalValue + 10000000; // Misalnya, tambahkan nilai tetap 10.000.000 ke saldo
-
-            // Tampilkan nilai pada elemen HTML
-            document.getElementById('totalPendapatan').textContent = formatCurrency(totalPendapatan);
-            document.getElementById('totalPengeluaran').textContent = formatCurrency(totalPengeluaran);
-            document.getElementById('total').textContent = formatCurrency(totalValue);
-
-            const saldoCell = document.getElementById('saldoValue');
-            saldoCell.textContent = formatCurrency(saldoValue);
-
-            // Panggil generateAndPrintPDF ketika data sudah ditampilkan
-            generateAndPrintPDF(data);
-        }
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR'
-            }).format(amount);
-        }
-
-        function generateAndPrintPDF(data) {
-            const totalPendapatan = parseCurrencyValue(document.getElementById('totalPendapatan').textContent);
-            const totalPengeluaran = parseCurrencyValue(document.getElementById('totalPengeluaran').textContent);
-            const totalValue = parseCurrencyValue(document.getElementById('total').textContent);
-            const saldoValue = parseCurrencyValue(document.getElementById('saldoValue').textContent);
-
-            const docDefinition = {
-                pageSize: 'A4',
-                content: [{
-                        text: `Jurnal Laba Rugi Tahun 2023`,
-                        style: 'header'
-                    },
-                    {
-                        text: `Surat ini dikeluarkan resmi oleh bumdes desa dengan keterangan sebagai berikut:
-                nama    : Admin 
-                lokasi  : Kantor Desa Umbele`,
-                        style: 'praph1'
-                    },
-                    {
-                        table: {
-                            headerRows: 1,
-                            widths: ['auto', 'auto'],
-                            body: [
-                                ['Nama', 'Nilai'],
-                                ['Pendapatan', formatCurrency(totalPendapatan)],
-                                ['Pengeluaran', formatCurrency(totalPengeluaran)],
-                                ['Laba', formatCurrency(totalValue)]
-                            ]
-                        }
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: 'Demikian surat laporan disampaikan dengan sangat akurat sesuai dengan arahan dari admin. Apabila ada kesalahan dalam penulisan maka kami pihak dibawah ini akan siap bertanggung jawab.'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: 'Hormat Kami,'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        text: '\n'
-                    },
-                    {
-                        columns: [{
-                                width: 'auto',
-                                text: [
-                                    '(.............)',
-                                    '\n',
-                                    {
-                                        text: 'Kepala Desa',
-                                        bold: true
-                                    },
-                                ]
-                            },
-                            {
-                                alignment: 'right',
-                                text: [
-                                    '(..............)',
-                                    '\n',
-                                    {
-                                        text: 'Admin',
-                                        bold: true
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                styles: {
-                    header: {
-                        fontSize: 18,
-                        bold: true,
-                        alignment: 'center',
-                        margin: [0, 0, 0, 12]
-                    },
-                    praph1: {
-                        margin: [0, 0, 0, 12]
-                    }
-                }
-            };
-
-            // Generate and open the PDF
-            pdfMake.createPdf(docDefinition).open();
-        }
-
-        function parseCurrencyValue(currencyString) {
-            // Remove non-numeric characters, replace comma with dot, and parse as float
-            return parseFloat(currencyString.replace(/[^\d,]/g, '').replace(',', '.'));
-        }
-    </script>
 
 </body>
 

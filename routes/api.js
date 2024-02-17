@@ -5,6 +5,12 @@ const uuid = require('uuid');
 const fs = require('fs');
 const session = require('express-session');
 
+// Setup express-session middleware
+router.use(session({
+    secret: uuid.v4(), // Panggil uuid.v4() untuk menghasilkan secret UUID
+    resave: false,
+    saveUninitialized: true
+}));
 
 router.post('/login', function (req, res) {
     const email = req.body.email;
@@ -16,20 +22,32 @@ router.post('/login', function (req, res) {
     db.query(query, [email, password], (err, results) => {
         if (err) {
             console.error('Kesalahan Query: ', err.stack);
-            return res.status(500).send('Kesalahan server');
+            return res.status(500).send('Kesalahan server: ' + err.message); // Kirim pesan kesalahan yang lebih informatif
         }
 
         if (results.length > 0) {
             // Autentikasi berhasil
-            req.session.user = email;
-            return res.redirect('/');
+            req.session.user = email; // Simpan email pengguna di sesi
+            return res.redirect('/dashboard');
+            console.log('login berhasil');
         } else {
-            // Autentikasi gagal
-            return res.redirect('/login');
+            // // Autentikasi gagal
+            return res.redirect('/');
+            console.log('login gagal');
         }
     });
 });
 
+// // Define checkAuthentication middleware
+function checkAuthentication(req, res, next) {
+    if (req.session && req.session.user) { // Periksa apakah ada sesi dan pengguna telah login
+        // Jika pengguna sudah login, lanjutkan ke rute berikutnya
+        return next();
+    } else {
+        // Jika pengguna belum login, redirect ke halaman login
+        return res.redirect('/');
+    }
+}
 
 
 // Function to get data
@@ -142,13 +160,21 @@ deleteData('/deleteAkun', 'tb_akun', 'id_akun');
 
 router.post('/dataKoperasi', (req, res) => {
     var tb_name = 'tb_koperasi';
-    var idColumnName = 'id_data';
     const newData = req.body;
-    const idData = uuid.v4();
+    const data = {
+        id_data: uuid.v4(),
+        id_akun: '9ca10809-04e',
+        nama: newData.nama,
+        NIK: newData.NIK,
+        waktu: newData.waktu,
+        nominal: newData.nominal,
+        jangka: newData.jangka,
+        no_hp: newData.no_hp
+    }
 
     const sql = `INSERT INTO ${tb_name} SET ?`;
 
-    db.query(sql, newData, (err, result) => {
+    db.query(sql, data, (err, result) => {
         if (err) {
             console.log(`Gagal menambahkan data ke tabel ${tb_name} dengan error: ${err}`);
             res.status(500).send('Gagal menambahkan data.');

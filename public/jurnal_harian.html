@@ -305,7 +305,7 @@
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="login.html">Logout</a>
+                    <a class="btn btn-primary" href="/">Logout</a>
                 </div>
             </div>
         </div>
@@ -455,6 +455,9 @@
             const totalValue = totalDebit - totalKredit;
             console.log(totalValue);
             formatCurrency(totalValue);
+            var currentDate = new Date();
+            const tanggal = ubahFormatTanggal(currentDate);
+            ~
             var docDefinition = {
                 pageSize: 'A4',
                 content: [{
@@ -464,7 +467,7 @@
                     {
                         text: `Surat ini dikeluarkan resmi oleh bumdes desa dengan keterangan sebagai berikut:
                 nama    : Admin 
-                tanggal : ${data[0]["waktu transaksi"]}
+                tanggal : ${tanggal}
                 lokasi : Kantor Desa Umbele`,
                         style: 'praph1'
                     },

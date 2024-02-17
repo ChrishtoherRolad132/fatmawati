@@ -237,11 +237,6 @@
                                                         rowspan="1" colspan="1"
                                                         aria-label="Name: activate to sort column ascending"
                                                         style="width: 52px;">Kode Akun</th>
-                                                    <th class="sorting sorting_desc" tabindex="0"
-                                                        aria-controls="dataTable" rowspan="1" colspan="1"
-                                                        aria-label="Position: activate to sort column ascending"
-                                                        aria-sort="descending" style="width: 249px;">ID Transaksi
-                                                    </th>
                                                     <th class="sorting" tabindex="0" aria-controls="dataTable"
                                                         rowspan="1" colspan="1"
                                                         aria-label="Office: activate to sort column ascending"
@@ -305,7 +300,7 @@
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="login.html">Logout</a>
+                    <a class="btn btn-primary" href="/">Logout</a>
                 </div>
             </div>
         </div>
@@ -367,7 +362,6 @@
                 var tanggal = ubahFormatTanggal(item.waktu);
                 const row = `<tr>
                         <td>${item["id_akun"]}</td>
-                        <td>${item["id_data"]}</td>
                         <td>${tanggal}</td>
                         <td>${formatCurrency(parseFloat(item.nominal))}</td>
                         <td>${item["posisi_saldo"]}</td>
@@ -397,13 +391,12 @@
                 const rowData = {};
 
                 rowData["kode_akun"] = columns[0].innerText;
-                rowData["id_transaksi"] = columns[1].innerText;
-                rowData["tanggal"] = columns[2].innerText;
+                rowData["tanggal"] = columns[1].innerText;
 
                 // Extract numeric value from currency-formatted string
-                rowData["nominal"] = parseCurrencyValue(columns[3].innerText);
+                rowData["nominal"] = parseCurrencyValue(columns[2].innerText);
 
-                rowData["posisi_saldo"] = columns[4].innerText;
+                rowData["posisi_saldo"] = columns[3].innerText;
 
                 data.push(rowData);
             });
@@ -418,13 +411,8 @@
 
         function generatePDF(data) {
             var currentDate = new Date();
-            var day = currentDate.getDate();
-            var month = currentDate.getMonth() + 1; // Ingat bahwa bulan dimulai dari 0
-            var year = currentDate.getFullYear();
-
-            // Menggabungkan dalam format yang diinginkan
-            var formattedDate = day + '-' + month + '-' + year;
-            var waktu = ubahFormatTanggal(formattedDate);
+            var waktu = ubahFormatTanggal(currentDate);
+            console.log(waktu);
             var docDefinition = {
                 pageSize: 'A4',
                 content: [{

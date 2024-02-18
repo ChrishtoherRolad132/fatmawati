@@ -480,14 +480,16 @@
                 console.log(`Data yang akan dikirim adalah: `, jsonData);
                 $.ajax({
                     url: '/api/dataSimpanan',
-                    method: 'post',
+                    type: 'POST',
                     data: jsonData,
                     contentType: 'application/json',
                     success: (data) => {
                         console.log(`Data berhasil dikirim`);
-                        $('#success').text('Data berhasil dikirim');
-                        location.reload();
-
+                        // Menampilkan pesan sukses pada elemen dengan id 'success'
+                        $('#success').text(
+                            data
+                            ); // Jika pesan yang diterima dari server adalah 'Data baru berhasil ditambahkan'
+                        location.reload(); // Reload halaman setelah data berhasil dikirim
                     },
                     error: (error) => {
                         console.error(`Error ketika mengirimkan data`, error);

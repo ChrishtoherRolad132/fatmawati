@@ -261,6 +261,7 @@ router.get('/dataSimpan', (req, res) => {
             console.log('Tidak dapat mengambil data', err);
         } else {
             res.send(data);
+            res.status(200).send('Data baru berhasil ditambahkan');
         }
     });
 });
@@ -282,6 +283,7 @@ router.post('/dataSimpanan', (req, res) => {
     db.query(sql, [data], (err) => {
         if (err) {
             console.log('Kesalahan saat mengirim data: ', err);
+            res.status(500).send('Internal Server Error');
         } else {
             console.log(`Berhasil menyimpan data simpanan`);
         }

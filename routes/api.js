@@ -22,32 +22,20 @@ router.post('/login', function (req, res) {
     db.query(query, [email, password], (err, results) => {
         if (err) {
             console.error('Kesalahan Query: ', err.stack);
-            return res.status(500).send('Kesalahan server: ' + err.message); // Kirim pesan kesalahan yang lebih informatif
+            return res.status(500).send('Kesalahan server');
         }
 
         if (results.length > 0) {
             // Autentikasi berhasil
-            req.session.user = email; // Simpan email pengguna di sesi
-            return res.redirect('/dashboard');
-            console.log('login berhasil');
-        } else {
-            // // Autentikasi gagal
+            req.session.user = email;
             return res.redirect('/');
-            console.log('login gagal');
+        } else {
+            // Autentikasi gagal
+            return res.redirect('/login');
         }
     });
 });
 
-// // Define checkAuthentication middleware
-function checkAuthentication(req, res, next) {
-    if (req.session && req.session.user) { // Periksa apakah ada sesi dan pengguna telah login
-        // Jika pengguna sudah login, lanjutkan ke rute berikutnya
-        return next();
-    } else {
-        // Jika pengguna belum login, redirect ke halaman login
-        return res.redirect('/');
-    }
-}
 
 
 // Function to get data
@@ -57,9 +45,9 @@ function getData(url, tb_name) {
         db.query(sql, (err, data) => {
             if (err) {
                 console.log(`Tidak bisa mengambil data di tabel ${tb_name} dengan error: ${err}`);
-                res.status(500).send('Gagal mengambil data.');
+                return res.status(500).send('Gagal mengambil data.');
             } else {
-                res.send(data);
+                return res.send(data);
             }
         });
     });
@@ -76,10 +64,10 @@ function addData(url, tb_name, idColumnName) {
         db.query(sql, newData, (err, result) => {
             if (err) {
                 console.log(`Gagal menambahkan data ke tabel ${tb_name} dengan error: ${err}`);
-                res.status(500).send('Gagal menambahkan data.');
+                return res.status(500).send('Gagal menambahkan data.');
             } else {
                 console.log(`Data berhasil ditambahkan ke tabel ${tb_name}`);
-                res.status(201).send('Data berhasil ditambahkan.');
+                return res.status(201).send('Data berhasil ditambahkan.');
             }
         });
     });
@@ -95,10 +83,10 @@ function deleteData(url, tb_name, idColumnName) {
         db.query(sql, id_akun, (err, data) => {
             if (err) {
                 console.log(`Terjadi kesalahan: ${err}`);
-                res.status(500).send('Gagal menghapus data.');
+                return res.status(500).send('Gagal menghapus data.');
             } else {
                 console.log('Data berhasil dihapus');
-                res.status(200).send('Data berhasil dihapus.');
+                return res.status(200).send('Data berhasil dihapus.');
             }
         });
     });
@@ -116,10 +104,10 @@ function editData(url, tb_name, idColumnName) {
         db.query(sql, [newData, id], (err, result) => {
             if (err) {
                 console.log(`Gagal mengedit data di tabel ${tb_name} dengan error: ${err}`);
-                res.status(500).send('Gagal mengedit data.');
+                return res.status(500).send('Gagal mengedit data.');
             } else {
                 console.log(`Data berhasil diedit di tabel ${tb_name}`);
-                res.status(200).send('Data berhasil diedit.');
+                return res.status(200).send('Data berhasil diedit.');
             }
         });
         console.log(id);
@@ -132,9 +120,9 @@ router.get('/dataPinjam', (req, res) => {
     db.query(sql, [id_akun], (err, data) => {
         if (err) {
             console.log(`Tidak bisa mengambil data di tabel dengan error: ${err}`);
-            res.status(500).send('Gagal mengambil data.');
+            return res.status(500).send('Gagal mengambil data.');
         } else {
-            res.send(data);
+            return res.send(data);
         }
     });
 });
@@ -144,9 +132,9 @@ router.get('/dataSimpanan', (req, res) => {
     db.query(sql, (err, data) => {
         if (err) {
             console.log(`Tidak bisa mengambil data di tabel dengan error: ${err}`);
-            res.status(500).send('Gagal mengambil data.');
+            return res.status(500).send('Gagal mengambil data.');
         } else {
-            res.send(data);
+            return res.send(data);
         }
     });
 });
@@ -162,8 +150,8 @@ router.post('/dataKoperasi', (req, res) => {
     var tb_name = 'tb_koperasi';
     const newData = req.body;
     const data = {
-        id_data: uuid.v4(),
         id_akun: '9ca10809-04e',
+        id_data: uuid.v4(),
         nama: newData.nama,
         NIK: newData.NIK,
         waktu: newData.waktu,
@@ -177,10 +165,10 @@ router.post('/dataKoperasi', (req, res) => {
     db.query(sql, data, (err, result) => {
         if (err) {
             console.log(`Gagal menambahkan data ke tabel ${tb_name} dengan error: ${err}`);
-            res.status(500).send('Gagal menambahkan data.');
+            return res.status(500).send('Gagal menambahkan data.');
         } else {
             console.log(`Data berhasil ditambahkan ke tabel ${tb_name}`);
-            res.status(201).send('Data berhasil ditambahkan.');
+            return res.status(201).send('Data berhasil ditambahkan.');
         }
     });
 });
@@ -222,11 +210,11 @@ router.post('/dataCicil', (req, res) => {
         fs.writeFile(filePath, jsonData, 'utf-8', (err) => {
             if (err) {
                 console.error(`Gagal menulis ke file ${filePath}: ${err}`);
-                res.status(500).send('Internal Server Error');
+                return res.status(500).send('Internal Server Error');
                 return;
             }
             console.log(`Data baru berhasil ditambahkan ke dalam file ${filePath}`);
-            res.status(200).send('Data baru berhasil ditambahkan');
+            return res.status(200).send('Data baru berhasil ditambahkan');
         });
     });
 
@@ -260,8 +248,7 @@ router.get('/dataSimpan', (req, res) => {
         if (err) {
             console.log('Tidak dapat mengambil data', err);
         } else {
-            res.send(data);
-            res.status(200).send('Data baru berhasil ditambahkan');
+            return res.send(data);
         }
     });
 });
@@ -283,7 +270,6 @@ router.post('/dataSimpanan', (req, res) => {
     db.query(sql, [data], (err) => {
         if (err) {
             console.log('Kesalahan saat mengirim data: ', err);
-            res.status(500).send('Internal Server Error');
         } else {
             console.log(`Berhasil menyimpan data simpanan`);
         }

@@ -31,7 +31,7 @@
         <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/dashboard">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
@@ -43,7 +43,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
-                <a class="nav-link" href="/">
+                <a class="nav-link" href="/dashboard">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
@@ -562,7 +562,7 @@
                             var totalCicilan = hitungCicilan(nominal, bunga, item.jangka);
                             var cicil = formatRupiah(totalCicilan);
                             item.cicilan = totalCicilan;
-                            var idCell = $('<td>').text(item.id_data);
+                            var idCell = $('<td>').text(item.id_akun);
                             var namaCell = $('<td>').text(item.nama);
                             var nomCell = $('<td>').text(formatRupiah(item.nominal));
                             var cicilCell = $('<td>').text(cicil);
